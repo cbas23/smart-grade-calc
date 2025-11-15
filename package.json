@@ -30,5 +30,11 @@
 		"typescript": "^5.9.2",
 		"vite": "^7.1.7",
 		"wrangler": "^4.47.0"
+	},
+	"dependencies": {
+		"@iconify-json/tabler": "^1.2.23",
+		"@iconify/tailwind4": "^1.1.0",
+		"ai": "^5.0.93",
+		"zod": "^4.1.12"
 	}
 }
