@@ -18,7 +18,7 @@
 		'Finalizing assessment framework...'
 	];
 
-	let text = $state('Loading...');
+	let text = $state(textLines[0]);
 
 	setInterval(() => {
 		const randomIndex = Math.floor(Math.random() * textLines.length);
