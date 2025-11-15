@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { SubjectData } from '$lib/subjectData.svelte';
+	import type { GetDataResponse } from '$lib/schemas/get-data';
 
 	// State for drag and drop
 	let selectedFile = $state<File | null>(null);
@@ -71,20 +72,109 @@
 	}
 
 	// handle submit
-	function handleSubmit() {
-		if (!selectedFile) {
-			errorMessage = 'Please select a file';
-			return;
-		}
+	async function handleSubmit() {
+		try {
+			if (selectedFile) {
+				if (selectedFile.size > MAX_FILE_SIZE) {
+					errorMessage = `File size exceeds ${formatFileSize(MAX_FILE_SIZE)}`;
+					return;
+				}
+				console.log('Submitting file:', selectedFile);
+				console.log('Submitting description:', descriptionText);
 
-		if (selectedFile.size > MAX_FILE_SIZE) {
-			errorMessage = `File size exceeds ${formatFileSize(MAX_FILE_SIZE)}`;
-			return;
-		}
+				data.mode = 'loading';
 
-		errorMessage = '';
-		console.log('Submitting file:', selectedFile);
-		console.log('Submitting description:', descriptionText);
+				const formData = new FormData();
+				formData.append('file', selectedFile);
+				if (descriptionText.trim()) {
+					formData.append('text', descriptionText);
+				}
+
+				// Make POST request to the API endpoint
+				const response = await fetch('/api/get-data', {
+					method: 'POST',
+					body: formData
+				});
+
+				if (!response.ok) {
+					const errorText = await response.text();
+					let errorMessage = 'Failed to process file';
+					try {
+						const errorData = JSON.parse(errorText) as { message?: string };
+						errorMessage = errorData.message || errorMessage;
+					} catch {
+						// If parsing fails, use the error text directly
+						errorMessage = errorText || errorMessage;
+					}
+					throw new Error(errorMessage);
+				}
+
+				const result = (await response.json()) as GetDataResponse;
+				console.log('API response:', result);
+
+				// Update the data with the response
+				if (result.success && result.data) {
+					// Assuming the result.data contains the processed information
+					// You might need to adjust this based on your actual data structure
+					// For now, let's just log it and set the mode to ready
+					console.log('Processed data:', result.data);
+				}
+
+				data.mode = 'ready';
+				return;
+			}
+
+			errorMessage = '';
+			console.log('Submitting description:', descriptionText);
+
+			if (!descriptionText.trim()) {
+				errorMessage = 'Please enter a description or select a file';
+				return;
+			}
+
+			data.mode = 'loading';
+
+			// Create FormData for the POST request
+			const formData = new FormData();
+			formData.append('text', descriptionText);
+
+			// Make POST request to the API endpoint
+			const response = await fetch('/api/get-data', {
+				method: 'POST',
+				body: formData
+			});
+
+			if (!response.ok) {
+				const errorText = await response.text();
+				let errorMessage = 'Failed to process text';
+				try {
+					const errorData = JSON.parse(errorText) as { message?: string };
+					errorMessage = errorData.message || errorMessage;
+				} catch {
+					// If parsing fails, use the error text directly
+					errorMessage = errorText || errorMessage;
+				}
+				throw new Error(errorMessage);
+			}
+
+			const result = (await response.json()) as GetDataResponse;
+			console.log('API response:', result);
+
+			// Update the data with the response
+			if (result.success && result.data) {
+				// Assuming the result.data contains the processed information
+				// You might need to adjust this based on your actual data structure
+				// For now, let's just log it and set the mode to ready
+				console.log('Processed data:', result.data);
+			}
+
+			data.mode = 'ready';
+		} catch (error) {
+			console.error('Error submitting data:', error);
+			errorMessage =
+				error instanceof Error ? error.message : 'An error occurred while processing your request';
+			data.mode = 'ready';
+		}
 	}
 </script>
 

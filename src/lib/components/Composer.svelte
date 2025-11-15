@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { SubjectData } from '$lib/subjectData.svelte';
+	import Calculator from './Calculator.svelte';
 	import Greet from './Greet.svelte';
 	import Loading from './Loading.svelte';
 
@@ -16,5 +17,8 @@
 	{/if}
 	{#if data.mode === 'loading'}
 		<Loading />
+	{/if}
+	{#if data.mode === 'ready'}
+		<Calculator {data} />
 	{/if}
 </div>

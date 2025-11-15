@@ -34,6 +34,7 @@
 	"dependencies": {
 		"@iconify-json/tabler": "^1.2.23",
 		"@iconify/tailwind4": "^1.1.0",
+		"@openrouter/ai-sdk-provider": "^1.2.3",
 		"ai": "^5.0.93",
 		"zod": "^4.1.12"
 	}

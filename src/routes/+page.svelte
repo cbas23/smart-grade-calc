@@ -24,7 +24,7 @@
 	<nav class="flex flex-row gap-2 bg-sky-700 px-4">
 		{#each tabs as data, i}
 			<div
-				class="hover: relative flex h-10 max-w-80 flex-1 flex-row items-center justify-end overflow-hidden rounded-t-sm border-gray-400"
+				class="relative flex h-10 max-w-80 flex-1 flex-row items-center justify-end overflow-hidden rounded-t-sm border-gray-400"
 			>
 				<button
 					class="h-full flex-1 transition hover:brightness-80"
@@ -49,8 +49,9 @@
 		<button
 			class="rounded-t-sm bg-gray-100 px-3 text-2xl transition-colors hover:bg-gray-300"
 			onclick={() => tabs.push(new SubjectData())}
+			aria-label="Add Tab"
 		>
-			+
+			<span class="icon-[tabler--plus] h-5 w-5"></span>
 		</button>
 	</nav>
 
