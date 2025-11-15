@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { SubjectData } from '$lib/subjectData.svelte';
 	import Greet from './Greet.svelte';
+	import Loading from './Loading.svelte';
 
 	interface Props {
 		data: SubjectData;
@@ -12,5 +13,8 @@
 <div class="container mx-auto flex flex-1 flex-col py-8">
 	{#if data.mode === 'start'}
 		<Greet {data} />
+	{/if}
+	{#if data.mode === 'loading'}
+		<Loading />
 	{/if}
 </div>
