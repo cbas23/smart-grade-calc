@@ -1,7 +1,7 @@
 import { json, error } from '@sveltejs/kit';
 import { z } from 'zod';
-import { formatContents } from '$lib/ai';
-import { extractDataPrompt } from '$lib/prompts';
+import { extractSubjectData, formatContents } from '$lib/server/ai';
+import { extractDataPrompt } from '$lib/server/prompts';
 import { GetDataRequestSchema, GetDataResponseSchema } from '$lib/schemas/get-data';
 
 async function fileToBase64(file: File): Promise<{ data: string; mimeType: string }> {
@@ -40,12 +40,17 @@ export async function POST({ request }) {
 			validatedData.text
 		);
 
+		console.log(contents);
+
+		const processedData = await extractSubjectData(contents);
+
+		console.log(processedData);
 
 		const responseData = {
 			success: true,
-			data: contents
+			data: processedData
 		};
-		
+
 		// Validate response data
 		const validatedResponse = GetDataResponseSchema.parse(responseData);
 		return json(validatedResponse);

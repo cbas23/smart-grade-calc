@@ -74,6 +74,7 @@
 	// handle submit
 	async function handleSubmit() {
 		try {
+			let response;
 			if (selectedFile) {
 				if (selectedFile.size > MAX_FILE_SIZE) {
 					errorMessage = `File size exceeds ${formatFileSize(MAX_FILE_SIZE)}`;
@@ -91,62 +92,30 @@
 				}
 
 				// Make POST request to the API endpoint
-				const response = await fetch('/api/get-data', {
+				response = await fetch('/api/get-data', {
 					method: 'POST',
 					body: formData
 				});
-
-				if (!response.ok) {
-					const errorText = await response.text();
-					let errorMessage = 'Failed to process file';
-					try {
-						const errorData = JSON.parse(errorText) as { message?: string };
-						errorMessage = errorData.message || errorMessage;
-					} catch {
-						// If parsing fails, use the error text directly
-						errorMessage = errorText || errorMessage;
-					}
-					throw new Error(errorMessage);
+			} else {
+				console.log('No file selected, submitting description only:', descriptionText);
+				if (!descriptionText.trim()) {
+					errorMessage = 'Please enter a description or select a file';
+					return;
 				}
-
-				const result = (await response.json()) as GetDataResponse;
-				console.log('API response:', result);
-
-				// Update the data with the response
-				if (result.success && result.data) {
-					// Assuming the result.data contains the processed information
-					// You might need to adjust this based on your actual data structure
-					// For now, let's just log it and set the mode to ready
-					console.log('Processed data:', result.data);
-				}
-
-				data.mode = 'ready';
-				return;
+				data.mode = 'loading';
+				// Create FormData for the POST request
+				const formData = new FormData();
+				formData.append('text', descriptionText);
+				// Make POST request to the API endpoint
+				response = await fetch('/api/get-data', {
+					method: 'POST',
+					body: formData
+				});
 			}
-
-			errorMessage = '';
-			console.log('Submitting description:', descriptionText);
-
-			if (!descriptionText.trim()) {
-				errorMessage = 'Please enter a description or select a file';
-				return;
-			}
-
-			data.mode = 'loading';
-
-			// Create FormData for the POST request
-			const formData = new FormData();
-			formData.append('text', descriptionText);
-
-			// Make POST request to the API endpoint
-			const response = await fetch('/api/get-data', {
-				method: 'POST',
-				body: formData
-			});
 
 			if (!response.ok) {
 				const errorText = await response.text();
-				let errorMessage = 'Failed to process text';
+				let errorMessage = 'Failed to process file';
 				try {
 					const errorData = JSON.parse(errorText) as { message?: string };
 					errorMessage = errorData.message || errorMessage;
@@ -161,11 +130,25 @@
 			console.log('API response:', result);
 
 			// Update the data with the response
-			if (result.success && result.data) {
-				// Assuming the result.data contains the processed information
-				// You might need to adjust this based on your actual data structure
-				// For now, let's just log it and set the mode to ready
-				console.log('Processed data:', result.data);
+			if (!(result.success && result.data)) {
+				console.log('Error while consuming data');
+			}
+
+			errorMessage = '';
+			console.log('Submitting description:', descriptionText);
+
+			for (const grade of result.data.gradeScale) {
+				data.gradeScale.push([grade.minPercent, grade.letterGrade]);
+			}
+			data.tabName = result.data.subjectTitle;
+			for (const section of result.data.components) {
+				data.sections.push({
+					id: crypto.randomUUID(),
+					title: section.title,
+					weight: section.weight,
+					maxPoints: section.maxPoints,
+					points: section.maxPoints
+				});
 			}
 
 			data.mode = 'ready';

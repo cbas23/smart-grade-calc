@@ -1,10 +1,11 @@
 import { env } from '$env/dynamic/private';
-import { z } from 'zod';
 import { createOpenRouter } from '@openrouter/ai-sdk-provider';
-import { generateText } from 'ai';
+import { generateObject, generateText } from 'ai';
+import { getSubjectDataPrompt } from './prompts';
+import { SubjectDataSchema } from '../schemas/get-data';
 
 export const openRouter = createOpenRouter({
-	apiKey: env.OPENROUTER_KEY
+	apiKey: env.OPENROUTER_API_KEY
 });
 
 interface FileData {
@@ -48,4 +49,13 @@ export async function formatContents(
 	});
 
 	return (await result).text;
+}
+
+export async function extractSubjectData(content: string) {
+	const result = generateObject({
+		model: openRouter('x-ai/grok-4-fast'),
+		schema: SubjectDataSchema,
+		prompt: getSubjectDataPrompt + '\n\n' + content
+	});
+	return (await result).object;
 }
