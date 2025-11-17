@@ -41,7 +41,7 @@ export const getSubjectDataPrompt = `
   Extract the title max 3 words.
   Extract the weight as a decimal from 0 to 1, ex: 0.5 for 50%
   Extract the number of points will return if completed successfully (has to be integer).
-  For Multiple exams or midterms, create separate sections for each exam.
+  All the Exams should have their own individual component.
   Do the same for projects that are less than or equal to 5 projects in the course.
 
   ## For General Data
