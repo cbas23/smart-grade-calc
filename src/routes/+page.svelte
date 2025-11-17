@@ -17,7 +17,7 @@
 
 <div class="flex h-screen w-screen flex-col">
 	<header class="flex h-28 w-full items-center justify-center bg-sky-700 text-white">
-		<h1 class="text-center text-3xl font-bold">Grade Calculator</h1>
+		<h1 class="text-center text-3xl font-bold">Smart Grade Calculator</h1>
 	</header>
 
 	<!-- Tabs Navigation -->
