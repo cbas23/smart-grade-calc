@@ -1,160 +1,174 @@
 # Smart Grade Calculator
 
-An intelligent grade calculation tool that automatically extracts grading criteria from course syllabi using AI and provides real-time grade tracking with visual feedback.
+A intelligent grade calculator that helps students track their academic progress by extracting grading criteria from course syllabus using AI. Built with SvelteKit, TypeScript, and deployed on Cloudflare Workers (not yet).
 
 ## Features
 
-- **AI-Powered Syllabus Processing**: Automatically extracts grading components, weights, and grade scales from uploaded syllabus files or text descriptions
-- **Multi-Tab Interface**: Manage multiple courses simultaneously with dedicated tabs for each subject
-- **Real-Time Grade Calculation**: Instantly calculates final grades as you update your scores
-- **Visual Grade Feedback**: Color-coded grade display (A=green, B=blue, C=amber, D=orange, F=red)
-- **Detailed Grade Breakdown**: Comprehensive table showing individual section contributions and overall performance
-- **File Upload Support**: Accepts various file formats for syllabus upload (PDF, DOCX, etc.)
-- **Text Input Option**: Manually enter course descriptions when files aren't available
-- **Responsive Design**: Clean, modern interface built with Tailwind CSS
+- **AI-Powered Syllabus Processing**: Upload syllabus files or paste text content to automatically extract grading components
+- **Multi-Tab Interface**: Manage multiple courses simultaneously with dedicated tabs
+- **Real-Time Grade Calculation**: Instantly see how your current scores translate to final grades
+- **Visual Grade Breakdown**: Detailed breakdown of how each assignment category contributes to your final grade
+- **Custom Grading Scales**: Supports custom grading scales extracted from syllabi or defaults to standard scales
+- **Responsive Design**: Clean, modern interface that works on all devices
 
 ## Technology Stack
 
 - **Frontend**: Svelte 5 with SvelteKit
 - **Styling**: Tailwind CSS v4
-- **AI Integration**: OpenRouter API with XAI Grok-4-fast model
-- **Type Safety**: TypeScript with Zod schemas
-- **Deployment**: Cloudflare Workers
-- **Build Tool**: Vite
+- **Backend**: Cloudflare Workers
+- **AI Integration**: OpenRouter API with X.AI Grok model
+- **Validation**: Zod for schema validation
 - **Package Manager**: Bun
+- **Deployment**: Cloudflare Pages/Workers
 
-## Architecture
-
-### Core Components
-
-- **[`src/routes/+page.svelte`](src/routes/+page.svelte)**: Main application shell with tab management
-- **[`src/lib/components/Composer.svelte`](src/lib/components/Composer.svelte)**: State management component that orchestrates different views
-- **[`src/lib/components/Greet.svelte`](src/lib/components/Greet.svelte)**: File upload and text input interface
-- **[`src/lib/components/Calculator.svelte`](src/lib/components/Calculator.svelte)**: Grade calculation and display logic
-- **[`src/lib/components/Loading.svelte`](src/lib/components/Loading.svelte)**: Animated loading component
-
-### Data Models
-
-- **[`src/lib/subjectData.svelte.ts`](src/lib/subjectData.svelte.ts)**: Core data structures for courses, sections, and grading
-- **[`src/lib/schemas/get-data.ts`](src/lib/schemas/get-data.ts)**: Zod validation schemas for API requests/responses
-
-### Backend Services
-
-- **[`src/routes/api/get-data/+server.ts`](src/routes/api/get-data/+server.ts)**: API endpoint for syllabus processing
-- **[`src/lib/server/ai.ts`](src/lib/server/ai.ts)**: AI service integration with OpenRouter
-- **[`src/lib/server/prompts.ts`](src/lib/server/prompts.ts)**: Structured prompts for AI data extraction
-
-## Getting Started
+## Setup and Installation
 
 ### Prerequisites
 
-- Node.js 18+ or Bun
+- Node.js (v18 or higher)
+- Bun package manager
 - OpenRouter API key (for AI functionality)
 
-### Installation
+### Local Development
 
 1. Clone the repository:
+
 ```bash
 git clone <repository-url>
-cd patriothacks-2025
+cd smart-grade-calc
 ```
 
 2. Install dependencies:
+
 ```bash
 bun install
-# or
-npm install
 ```
 
 3. Set up environment variables:
-Create a `.env` file in the root directory:
+   Create a `.env` file in the root directory and add:
+
 ```
-OPENROUTER_API_KEY=your_api_key_here
+OPENROUTER_API_KEY=your_openrouter_api_key_here
 ```
 
-### Development
+1. Run the development server:
 
-Start the development server:
 ```bash
 bun run dev
-# or
-npm run dev
 ```
 
 The application will be available at `http://localhost:5173`
 
-### Building
+**This should be enough to test the full functionality of the app**
 
-Create a production build:
-```bash
-bun run build
-# or
-npm run build
+Deployment for this app is not yet fully ready.
+
+## Architecture Overview
+
+```mermaid
+graph TB
+    subgraph "Client Side"
+        A[Main Page] --> B[Tab Management]
+        A --> C[Composer Component]
+        C --> D[Greet Component]
+        C --> E[Loading Component]
+        C --> F[Calculator Component]
+    end
+
+    subgraph "Server Side"
+        G[API Route: /api/get-data] --> H[AI Service]
+        H --> I[OpenRouter API]
+        G --> J[Data Validation]
+    end
+
+    subgraph "Data Flow"
+        K[Syllabus File/Text] --> G
+        G --> L[Extracted Grade Data]
+        L --> F
+        F --> M[Grade Calculations]
+        M --> N[Final Grade Display]
+    end
+
+    A --> G
+    G --> K
 ```
 
-### Deployment
+### Key Components
 
-Deploy to Cloudflare Workers:
-```bash
-bun run deploy
-# or
-npm run deploy
+#### Frontend Components
+
+- **Main Page** (`src/routes/+page.svelte`): Manages tab navigation and overall layout
+- **Composer** (`src/lib/components/Composer.svelte`): Orchestrates the different states of the application
+- **Greet** (`src/lib/components/Greet.svelte`): Handles file upload and text input for syllabus processing
+- **Loading** (`src/lib/components/Loading.svelte`): Shows loading animation during AI processing
+- **Calculator** (`src/lib/components/Calculator.svelte`): Displays grade calculations and breakdown
+
+#### Backend Services
+
+- **API Route** (`src/routes/api/get-data/+server.ts`): Handles file uploads and text processing
+- **AI Service** (`src/lib/server/ai.ts`): Manages communication with OpenRouter API
+- **Prompts** (`src/lib/server/prompts.ts`): Contains AI prompts for data extraction
+- **Schemas** (`src/lib/schemas/get-data.ts`): Zod schemas for request/response validation
+
+#### Data Models
+
+- **SubjectData** (`src/lib/subjectData.svelte.ts`): Reactive state management for course data
+- **Section**: Represents individual assignment categories with weights and points
+- **GradeScale**: Defines the mapping between percentages and letter grades
+
+## How It Works
+
+1. **Input**: Users upload a syllabus file (PDF, DOCX, etc.) or paste text content
+2. **Processing**: The application sends the content to the AI service via OpenRouter API
+3. **Extraction**: AI extracts grading components, weights, and grade scales using structured prompts
+4. **Validation**: Extracted data is validated against Zod schemas
+5. **Display**: Processed data is displayed in an interactive calculator interface
+6. **Calculation**: Users can input their current scores to see real-time grade calculations
+
+## API Endpoints
+
+### POST /api/get-data
+
+Processes syllabus content and extracts grading information.
+
+**Request:**
+
+- `file` (optional): Uploaded syllabus file (base64 encoded)
+- `text` (optional): Text content of syllabus
+
+**Response:**
+
+```json
+{
+	"success": true,
+	"data": {
+		"subjectTitle": "Course Name",
+		"components": [
+			{
+				"title": "Assignments",
+				"weight": 0.4,
+				"maxPoints": 100
+			}
+		],
+		"gradeScale": [
+			{
+				"minPercent": 0.9,
+				"letterGrade": "A"
+			}
+		]
+	}
+}
 ```
 
-## Usage
+## Development Scripts
 
-1. **Upload a Syllabus**: Drag and drop a course syllabus file or click "Choose File" to select one
-2. **Or Enter Text**: Type or paste your course grading criteria in the text area
-3. **Process with AI**: Click "Submit" to analyze the syllabus and extract grading components
-4. **Track Grades**: Once processed, enter your current scores for each assignment/category
-5. **Monitor Progress**: Watch your final grade update in real-time with visual feedback
-
-## Grade Calculation Logic
-
-The calculator uses a weighted average system:
-
-```
-Final Grade = Σ (Section Score × Section Weight)
-```
-
-Where:
-- Section Score = (Points Earned / Max Points) for each category
-- Section Weight = Percentage weight of each category (as decimal)
-
-### Default Grade Scale
-
-If no grade scale is found in the syllabus, the application uses:
-- A+: 97%+
-- A: 93%+
-- A-: 90%+
-- B+: 87%+
-- B: 83%+
-- B-: 80%+
-- C+: 77%+
-- C: 73%+
-- C-: 70%+
-- D+: 67%+
-- D: 63%+
-- D-: 60%+
-- F: Below 60%
-
-## File Support
-
-The application supports various file formats for syllabus upload:
-- PDF documents
-- Microsoft Word documents (.docx)
-- Text files (.txt)
-- And other common document formats
-
-Maximum file size: 10MB
-
-## API Integration
-
-The application integrates with OpenRouter to use the XAI Grok-4-fast model for:
-- Extracting grading criteria from syllabi
-- Identifying assignment categories and weights
-- Parsing grade scales and boundaries
-- Structuring unstructured course information
+- `bun run dev`: Start development server
+- `bun run build`: Build for production
+- `bun run preview`: Preview production build locally
+- `bun run check`: Run TypeScript and Svelte checks
+- `bun run format`: Format code with Prettier
+- `bun run lint`: Check code formatting
+- `bun run deploy`: Deploy to Cloudflare
 
 ## Contributing
 
@@ -166,17 +180,11 @@ The application integrates with OpenRouter to use the XAI Grok-4-fast model for:
 
 ## License
 
-This project is open source and available under the [MIT License](LICENSE).
+This project is licensed under the MIT License - see the LICENSE file for details.
 
-## Built With
+## Acknowledgments
 
-- [Svelte](https://svelte.dev/) - Cybernetically enhanced web apps
-- [SvelteKit](https://kit.svelte.dev/) - The fastest way to build Svelte apps
-- [Tailwind CSS](https://tailwindcss.com/) - Utility-first CSS framework
-- [OpenRouter](https://openrouter.ai/) - Unified access to multiple AI models
-- [Vite](https://vitejs.dev/) - Next generation frontend tooling
-- [Cloudflare Workers](https://workers.cloudflare.com/) - Serverless computing platform
-
----
-
-**Smart Grade Calculator** - Transform how students track their academic progress with AI-powered grade analysis.
+- Built for PatriotHacks 2025
+- Uses OpenRouter for AI model access
+- Icons provided by Tabler Icons
+- Styled with Tailwind CSS
